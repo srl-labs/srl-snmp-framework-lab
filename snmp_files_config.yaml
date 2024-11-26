@@ -1,0 +1,2 @@
+table-definitions:
+  - scripts/grpc_mib.yaml

@@ -1,0 +1,15 @@
+name: snmp-framework
+prefix: ""
+
+topology:
+  nodes:
+    snmp-srl:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux:24.10.1
+      binds:
+        - grpc_mib.yaml:/etc/opt/srlinux/snmp/scripts/grpc_mib.yaml
+        - grpc_mib.py:/etc/opt/srlinux/snmp/scripts/grpc_mib.py
+        - snmp_files_config.yaml:/etc/opt/srlinux/snmp/snmp_files_config.yaml
+      exec:
+        - sleep 5
+        - sr_cli /tools system app-management application snmp_server-mgmt restart

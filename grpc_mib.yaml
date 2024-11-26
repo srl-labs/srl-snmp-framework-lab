@@ -1,0 +1,39 @@
+###########################################################################
+# Description:
+#
+# Copyright (c) 2024 Nokia
+###########################################################################
+# yaml-language-server: $schema=./table_definition_schema.json
+
+paths:
+  - /system/grpc-server/...
+python-script: grpc_mib.py
+enabled: true
+debug: true
+tables:
+  - name: gRPCServerTable
+    enabled: true
+    oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120
+    indexes:
+      - name: gRPCServerName
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.1
+        syntax: octet string
+    columns:
+      - name: grpcServerNetworkInstance
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.2
+        syntax: octet string
+      - name: grpcServerAdminState
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.3
+        syntax: integer
+      - name: grpcServerOperState
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.4
+        syntax: integer
+      - name: grpcServerAccessRejects
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.5
+        syntax: integer
+      - name: grpcServerAccessAccepts
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.6
+        syntax: integer
+      - name: grpcServerLastAccessAccept
+        oid: 1.3.6.1.4.1.6527.115.114.108.105.110.117.120.1.7
+        syntax: timeticks

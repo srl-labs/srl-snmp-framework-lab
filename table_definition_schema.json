@@ -1,0 +1,243 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "description": "Table Definition Schema for SRLinux grpc-to-snmp mapping",
+    "required": [
+        "paths",
+        "python-script"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+        "syntax": {
+            "type": "string",
+            "enum": [
+                "octet string",
+                "object identifier",
+                "bits",
+                "integer",
+                "integer32",
+                "unsigned",
+                "unsigned32",
+                "counter",
+                "counter32",
+                "counter64",
+                "gauge",
+                "gauge32",
+                "timeticks",
+                "ipaddress"
+            ]
+        }
+    },
+    "properties": {
+        "paths": {
+            "description": "List of xpaths to load data from GRPC (mandatory)",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "default": [
+                "/interface/..."
+            ]
+        },
+        "optional-paths": {
+            "description": "List of xpaths to load data from GRPC (optional, won't cause runtime failures)",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "default": [
+                "/interface/..."
+            ]
+        },
+        "python-script": {
+            "description": "The python-script used to convert the GRPC data into SNMP. needs to be in the scripts directory",
+            "type": "string",
+            "default": "interface.py"
+        },
+        "enabled": {
+            "description": "Flag to enable/disable the entire config file",
+            "type": "boolean",
+            "default": true
+        },
+        "debug": {
+            "description": "When true, debug files will be left in $TMPDIR/snmp_debug or /tmp/snmp_debug",
+            "type": "boolean",
+            "default": false
+        },
+        "tables": {
+            "description": "List of SNMP tables that will be exported",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "oid",
+                    "columns"
+                ],
+                "additionalProperties": false,
+                "oneOf": [
+                    {
+                        "required": [
+                            "indexes"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "augment"
+                        ]
+                    }
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Name of SNMP table",
+                        "type": "string",
+                        "default": "ifTable"
+                    },
+                    "enabled": {
+                        "description": "Flag to enable/disable a table",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "oid": {
+                        "description": "OID of a table",
+                        "type": "string",
+                        "default": "1.3.6.1.2.1.2.2"
+                    },
+                    "augment": {
+                        "description": "When a table is an augment of another table (indexes are not allowed in that case)",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "hardcoded": {
+                        "description": "when true, data will be delivered directly, not via a python-script",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "indexes": {
+                        "description": "List of indexes for a table",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "syntax"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {
+                                    "description": "Name of an index",
+                                    "type": "string",
+                                    "default": "ifIndex"
+                                },
+                                "oid": {
+                                    "description": "OID of an index",
+                                    "type": "string",
+                                    "default": "1.3.6.1.2.1.2.2"
+                                },
+                                "syntax": {
+                                    "description": "Syntax of an index",
+                                    "$ref": "#/$defs/syntax",
+                                    "default": "integer"
+                                },
+                                "binary": {
+                                    "description": "when true, an index uses a binary definition (hexadecimal or base64 encoded string)",
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            }
+                        }
+                    },
+                    "columns": {
+                        "description": "List of columns for this table",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "oid",
+                                "syntax"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {
+                                    "description": "Name of a column",
+                                    "type": "string",
+                                    "default": "ifName"
+                                },
+                                "enabled": {
+                                    "description": "Flag to enable/disable a column",
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "oid": {
+                                    "description": "OID of a column. Needs to be based on the OID of the parent.",
+                                    "type": "string",
+                                    "default": "1.3.6.1.2.1.2.2.2"
+                                },
+                                "syntax": {
+                                    "description": "Syntax of a column",
+                                    "$ref": "#/$defs/syntax",
+                                    "default": "integer"
+                                },
+                                "binary": {
+                                    "description": "when true, a column uses a binary definition (hexadecimal or base64 encoded string)",
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "scalars": {
+            "description": "List of scalars",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "oid",
+                    "syntax"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "description": "Name of a scalar",
+                        "type": "string",
+                        "default": "ifNumber"
+                    },
+                    "enabled": {
+                        "description": "Flag to enable/disable a scalar",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "oid": {
+                        "description": "OID of a scalar",
+                        "type": "string",
+                        "default": "1.3.6.1.2.1.2.1"
+                    },
+                    "syntax": {
+                        "description": "Syntax of a scalar",
+                        "$ref": "#/$defs/syntax",
+                        "default": "integer"
+                    },
+                    "binary": {
+                        "description": "when true, a column uses a binary definition (hexadecimal or base64 encoded string)",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "hardcoded": {
+                        "description": "when true, data will be delivered directly, not via a python-script",
+                        "type": "boolean",
+                        "default": false
+                    }
+                }
+            }
+        }
+    }
+}
