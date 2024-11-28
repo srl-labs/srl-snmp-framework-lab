@@ -1,0 +1,18 @@
+{
+    "image": "ghcr.io/srl-labs/containerlab/clab-devcontainer-dood:0.0.0-0.60.0-beta3",
+    "runArgs": [
+        "--network=host",
+        "--pid=host",
+        "--privileged"
+    ],
+    "mounts": [
+        "type=bind,src=/run/netns,dst=/run/netns"
+    ],
+    "workspaceFolder": "${localWorkspaceFolder}",
+    "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+    "hostRequirements": {
+        "cpus": 2,
+        "memory": "8gb",
+        "storage": "32gb"
+    }
+}
