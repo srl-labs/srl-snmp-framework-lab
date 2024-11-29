@@ -11,11 +11,5 @@
         "type=bind,src=/lib/modules,dst=/lib/modules"
     ],
     "workspaceFolder": "${localWorkspaceFolder}",
-    "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
-    // hostRequirements is optional, and only used when running in github codespaces
-    "hostRequirements": {
-        "cpus": 2,
-        "memory": "8gb",
-        "storage": "32gb"
-    }
+    "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind"
 }
