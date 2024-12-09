@@ -9,7 +9,7 @@ import json
 
 import utilities
 
-SERVER_ADMINS_TATUS_UP = 1
+SERVER_ADMIN_STATUS_UP = 1
 SERVER_ADMIN_STATUS_DOWN = 2
 
 IF_OPER_STATUS_UP = 1
@@ -20,7 +20,7 @@ IF_OPER_STATUS_DOWN = 2
 def convertAdminStatus(value: str):
     if value is not None:
         if value == "enable":
-            return SERVER_ADMINS_TATUS_UP
+            return SERVER_ADMIN_STATUS_UP
         elif value == "disable":
             return SERVER_ADMIN_STATUS_DOWN
 
