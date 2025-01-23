@@ -10,6 +10,7 @@ topology:
         - grpc_mib.yaml:/etc/opt/srlinux/snmp/scripts/grpc_mib.yaml
         - grpc_mib.py:/etc/opt/srlinux/snmp/scripts/grpc_mib.py
         - snmp_files_config.yaml:/etc/opt/srlinux/snmp/snmp_files_config.yaml
+        - debug:/tmp/snmp_debug
       exec:
         - sleep 5
         - sr_cli /tools system app-management application snmp_server-mgmt restart

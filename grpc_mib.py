@@ -60,8 +60,9 @@ def snmp_main(in_json_str: str) -> str:
 
         last_access_accept = 0
         # Grab the last-access-accept timestamp
-        if statistics.get("last-access-accept", False):
-            ts = utilities.parse_rfc3339_date()
+        _last_access = statistics.get("last-access-accept", False)
+        if _last_access:
+            ts = utilities.parse_rfc3339_date(_last_access)
             # Convert it to timeTicks from boot time
             last_access_accept = utilities.convertUnixTimeStampInTimeticks(ts)
 
