@@ -1,0 +1,16 @@
+/ system {
+    snmp {
+        trap-group demo {
+            admin-state enable
+            network-instance mgmt
+            destination collector {
+                admin-state enable
+                address 172.20.20.1
+                security-level no-auth-no-priv
+                community-entry demo {
+                    community $aes1$AWH1hpWaLIQcJW8=$U4lfbaSe7c2yu4H/wSfxVA==
+                }
+            }
+        }
+    }
+}
