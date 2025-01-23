@@ -1,2 +1,4 @@
 table-definitions:
   - scripts/grpc_mib.yaml
+trap-definitions:
+  - scripts/grpc_traps.yaml
