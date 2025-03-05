@@ -1,2 +1,4 @@
 clab-*
 *.clab.yml.bak
+debug/*
+!debug/.gitkeep

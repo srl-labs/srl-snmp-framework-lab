@@ -18,13 +18,14 @@ SNMP, powered by gNMI. This is the way.
 
 Deploy the lab
 
-```
-sudo containerlab deploy -t srl-labs/srl-snmp-framework-lab
+```bash
+containerlab deploy -t srl-labs/srl-snmp-framework-lab
 ```
 
 Try the new MIB:
 
 ```bash
-docker run --init --network clab -i -t goatatwork/snmpwalk \
--v 2c -c public snmp-srl 1.3.6.1.4.1.6527.115
+sudo docker run --network clab -i ghcr.io/hellt/net-snmp-tools:5.9.4-r0 snmpwalk \
+-v 2c -c public -O qn \
+snmp-srl 1.3.6.1.4.1.6527.115 | grep '.4.109'
 ```

@@ -5,11 +5,15 @@ topology:
   nodes:
     snmp-srl:
       kind: nokia_srlinux
-      image: ghcr.io/nokia/srlinux:24.10.1
+      image: ghcr.io/nokia/srlinux:24.10.3
+      startup-config: snmp-config.cli
       binds:
+        - snmp_files_config.yaml:/etc/opt/srlinux/snmp/snmp_files_config.yaml
         - grpc_mib.yaml:/etc/opt/srlinux/snmp/scripts/grpc_mib.yaml
         - grpc_mib.py:/etc/opt/srlinux/snmp/scripts/grpc_mib.py
-        - snmp_files_config.yaml:/etc/opt/srlinux/snmp/snmp_files_config.yaml
+        - grpc_traps.yaml:/etc/opt/srlinux/snmp/scripts/grpc_traps.yaml
+        - grpc_traps.py:/etc/opt/srlinux/snmp/scripts/grpc_traps.py
+        - debug:/tmp/snmp_debug
       exec:
         - sleep 5
         - sr_cli /tools system app-management application snmp_server-mgmt restart
