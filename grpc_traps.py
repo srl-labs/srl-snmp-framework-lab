@@ -6,42 +6,47 @@
 
 import json
 from collections import OrderedDict
-
+import re
 import utilities
 
-# list of traps that will be echoed back to the
+# list of traps that will be echoed back to the client
 traps_list_db: list = []
 
-IFOPERSTATUS_UP             = 1
-IFOPERSTATUS_DOWN           = 2
-IFOPERSTATUS_TESTING        = 3
-IFOPERSTATUS_UNKNOWN        = 4
 
-def convertOperStatus(value: str) -> int:
-    if value is not None:
-        if value == 'up':
-            return IFOPERSTATUS_UP
-        elif value == 'down' or value == 'testing' : # RFC2863 section 3.1.15
-            return IFOPERSTATUS_DOWN
-    return IFOPERSTATUS_UNKNOWN
+def parseGrpcServerKeys(xpath: str):
+    # retrieve the name of the grpc-server from the xpath
+    name_pattern = re.compile(r"[^\]]+\[([^\[\]=]+?)=([^\]]+)\]")
+    matches = name_pattern.match(xpath)
+    if matches is not None:
+        return matches.group(2)
+    return None
 
 
-def store_value_in_json(json_obj:dict, name:str, value) -> None:
-    if value is not None:
-        json_obj[name] = value
+def gRPCServerUpgRPCServerUpDownTrap(grpc_servers: list, trap: dict, value) -> None:
+    filter_key = parseGrpcServerKeys(trap.get("xpath", ""))
+    if filter_key is None:
+        raise ValueError(f"Can't look for a grpc-server without an xpath")
 
+    # loop over all grpc-servers, filter the ones that match the xpath
+    for server in grpc_servers:
+        server_name = server.get("name", "")  # key
+        if server_name != filter_key:
+            continue
 
-def gRPCServerUpgRPCServerDownTrap(system: list, trap: dict) -> None:
-    trap_name = trap.get('name')
-    if trap_name is not None:
+        # only report the grpc-servers that have the correct oper-state (unless force flag was used)
+        if not utilities.is_forced_simulated_trap():
+            oper_state = server.get("oper-state", "")
+            if value is not None and oper_state != value:
+                continue
+
         row = OrderedDict()
         objects = OrderedDict()
 
-        objects["gRPCServerName"] = system["grpc-server"][0]["name"]
+        objects["gRPCServerName"] = server_name
 
-        row['trap'] = trap_name
-        row['indexes'] = OrderedDict()  # no indexes to report
-        row['objects'] = objects
+        row["trap"] = trap.get("name", "")
+        row["indexes"] = OrderedDict()  # no indexes to report
+        row["objects"] = objects
         traps_list_db.append(row)
 
 
@@ -53,45 +58,33 @@ def snmp_main(in_json_str: str) -> str:
 
     in_json = json.loads(in_json_str)
 
-    del in_json_str
-
     # read in general info from the snmp server
-    snmp_info = in_json.get('_snmp_info_')
+    snmp_info = in_json.get("_snmp_info_")
     utilities.process_snmp_info(snmp_info)
 
     # read in info about the traps that will be triggered in this request (depending on the trigger)
-    trap_info = in_json.get('_trap_info_')
+    trap_info = in_json.get("_trap_info_", [])
 
-    # read in context data
-    system = in_json.get('system', [])
+    system = in_json.get("system", {})
+    grpc_servers = system.get("grpc-server", [])
 
-    del in_json
-
+    # loop over all traps in this request
     for trap in trap_info:
-        name = trap['name']
-        trigger = trap['trigger']
-        #print(f'do trap {name} for {trigger}')
+        name = trap.get("name", "")
+        trigger = trap.get("trigger", "")
+        newValue = trap.get("new-value", "")
 
-        if utilities.is_simulated_trap():
-            if name == 'gRPCServerDown':
-                gRPCServerUpgRPCServerDownTrap(system, trap)
-            elif name == 'gRPCServerUp':
-                gRPCServerUpgRPCServerDownTrap(system, trap)
-            else:
-                raise ValueError(f'Unknown trap {name} with trigger {trigger}')
-
+        if name == "gRPCServerDown":
+            if newValue == "down" or utilities.is_forced_simulated_trap():
+                gRPCServerUpgRPCServerUpDownTrap(grpc_servers, trap, newValue)
+        elif name == "gRPCServerUp":
+            if newValue == "up" or utilities.is_forced_simulated_trap():
+                gRPCServerUpgRPCServerUpDownTrap(grpc_servers, trap, newValue)
         else:
-            if name == 'gRPCServerDown':
-                gRPCServerUpgRPCServerDownTrap(system, trap)
-            elif name == 'gRPCServerUp':
-                gRPCServerUpgRPCServerDownTrap(system, trap)
-            else:
-                raise ValueError(f'Unknown trap {name} with trigger {trigger}')
+            raise ValueError(f"Unknown trap {name} with trigger {trigger}")
 
-    response:dict = {}
+    response: dict = {}
 
-    response['traps'] = traps_list_db
-
-    del system, traps_list_db
+    response["traps"] = traps_list_db
 
     return json.dumps(response)

@@ -19,7 +19,7 @@ SNMP, powered by gNMI. This is the way.
 Deploy the lab
 
 ```bash
-sudo containerlab deploy -t srl-labs/srl-snmp-framework-lab
+containerlab deploy -t srl-labs/srl-snmp-framework-lab
 ```
 
 Try the new MIB:
